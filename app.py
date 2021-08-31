@@ -11,7 +11,8 @@ def survey_start():
     instructions = satisfaction_survey.instructions
     return render_template('home.html', survey_title=title, survey_instructions=instructions)
 
-@app.route('question/<int:id>')
+@app.route('/question/<int:id>')
 def survey_question(id):
-    question = satisfaction_survey.questions[id]
-    return render_template('question.html', survey_question=question)
+    question = satisfaction_survey.questions[id].question
+    next_id = id + 1
+    return render_template('question.html', survey_question=question, action_id=next_id)

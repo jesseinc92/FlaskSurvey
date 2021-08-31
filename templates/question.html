@@ -1,10 +1,12 @@
-{% extends 'base.html'}
+{% extends 'base.html' %}
 
 {% block title %}Survey | Questions{% endblock %}
 
 {% block survey_body %}
     <h1>{{survey_question}}</h1>
-    <form action="/question/0">
-        <button type="submit">Begin</button>
+    <form action="/question/{{action_id}}">
+        <input type="radio" name="" id="">
+        <input type="radio" name="" id="">
+        <button type="submit">Next Question</button>
     </form>
 {% endblock %}
