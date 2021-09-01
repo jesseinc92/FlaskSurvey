@@ -14,19 +14,30 @@ def survey_start():
     instructions = satisfaction_survey.instructions
     return render_template('home.html', survey_title=title, survey_instructions=instructions)
 
+
 @app.route('/question/<int:id>')
 def survey_question(id):
     question = satisfaction_survey.questions[id]
     q = question.question
     id += 1
-    return render_template('question.html',
-        survey_question=q,
-        responses=responses,
-        choice1=question.choices[0],
-        choice2=question.choices[1])
+
+    if id < len(satisfaction_survey.questions):
+        return render_template('question.html',
+            survey_question=q,
+            responses=responses,
+            choice1=question.choices[0],
+            choice2=question.choices[1])
+    else:
+        return redirect(url_for('thank_you'))
+
 
 @app.route('/answer', methods=['POST'])
 def add_answer():
     test = request.form['choice']
     responses.append(test)
     return redirect(url_for('survey_question', id=len(responses)))
+
+
+@app.route('/thank-you')
+def thank_you():
+    return render_template('thanks.html')
