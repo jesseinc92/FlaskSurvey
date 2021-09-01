@@ -1,7 +1,10 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
+from flask_debugtoolbar import DebugToolbarExtension
 from surveys import satisfaction_survey
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '1234'
+toolbar = DebugToolbarExtension(app)
 
 responses = []
 
@@ -13,6 +16,17 @@ def survey_start():
 
 @app.route('/question/<int:id>')
 def survey_question(id):
-    question = satisfaction_survey.questions[id].question
-    next_id = id + 1
-    return render_template('question.html', survey_question=question, action_id=next_id)
+    question = satisfaction_survey.questions[id]
+    q = question.question
+    id += 1
+    return render_template('question.html',
+        survey_question=q,
+        responses=responses,
+        choice1=question.choices[0],
+        choice2=question.choices[1])
+
+@app.route('/answer', methods=['POST'])
+def add_answer():
+    test = request.form['choice']
+    responses.append(test)
+    return redirect(url_for('survey_question', id=len(responses)))

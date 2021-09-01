@@ -4,9 +4,16 @@
 
 {% block survey_body %}
     <h1>{{survey_question}}</h1>
-    <form action="/question/{{action_id}}">
-        <input type="radio" name="" id="">
-        <input type="radio" name="" id="">
+    <p>{{responses}}</p>
+    <form action="/answer" method="POST">
+        <label for="choice">
+            {{choice1}}
+            <input type="radio" name="choice" value="yes">
+        </label>
+        <label for="choice">
+            {{choice2}}
+            <input type="radio" name="choice" value="no">
+        </label>
         <button type="submit">Next Question</button>
     </form>
 {% endblock %}
