@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, flash
+from flask import Flask, request, render_template, redirect, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from surveys import satisfaction_survey
 
@@ -16,32 +16,40 @@ def survey_start():
     return render_template('home.html', survey_title=title, survey_instructions=instructions)
 
 
-@app.route('/question/<int:id>')
-def survey_question(id):
-    question = satisfaction_survey.questions[id]
-    q = question.question
-    id += 1
+@app.route('/question/<int:qid>')
+def survey_question(qid):
+    if responses is None:
+        return redirect('/')
 
-    if id < len(satisfaction_survey.questions):
-        return render_template('question.html',
-            survey_question=q,
-            responses=responses,
-            choice1=question.choices[0],
-            choice2=question.choices[1])
-    elif id != len(responses)-1:
+    if qid != len(responses):
         flash("You're trying to answer the wrong question.")
-        return redirect(url_for('survey_question', id=len(responses)))
-    elif len(responses) == len(satisfaction_survey.questions):
-        return redirect(url_for('thank_you'))
+        return redirect(f'/question/{len(responses)}')
+
+    if len(responses) == len(satisfaction_survey.questions):
+        return redirect('/thank_you')
+
+    question = satisfaction_survey.questions[qid]
+    q = question.question
+    qid += 1
+    return render_template('question.html',
+        survey_question=q,
+        responses=responses,
+        choice1=question.choices[0],
+        choice2=question.choices[1])
 
 
 @app.route('/answer', methods=['POST'])
 def add_answer():
     test = request.form['choice']
     responses.append(test)
-    return redirect(url_for('survey_question', id=len(responses)))
+
+    if len(responses) == len(satisfaction_survey.questions):
+        return redirect('/thank_you')
+
+    else:
+        return redirect(f'/question/{len(responses)}')
 
 
-@app.route('/thank-you')
+@app.route('/thank_you')
 def thank_you():
     return render_template('thanks.html')
