@@ -1,10 +1,11 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from surveys import satisfaction_survey
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '1234'
 toolbar = DebugToolbarExtension(app)
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 responses = []
 
@@ -27,7 +28,10 @@ def survey_question(id):
             responses=responses,
             choice1=question.choices[0],
             choice2=question.choices[1])
-    else:
+    elif id != len(responses)-1:
+        flash("You're trying to answer the wrong question.")
+        return redirect(url_for('survey_question', id=len(responses)))
+    elif len(responses) == len(satisfaction_survey.questions):
         return redirect(url_for('thank_you'))
 
 

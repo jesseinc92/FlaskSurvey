@@ -4,7 +4,9 @@
 
 {% block survey_body %}
     <h1>{{survey_question}}</h1>
-    <p>{{responses}}</p>
+    {% for msg in get_flashed_messages() %}
+    <p>{{ msg }}</p>
+    {% endfor %}
     <form action="/answer" method="POST">
         <label for="choice">
             {{choice1}}
