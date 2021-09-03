@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, flash
+from flask import Flask, request, render_template, redirect, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
 from surveys import satisfaction_survey
 
@@ -16,16 +16,24 @@ def survey_start():
     return render_template('home.html', survey_title=title, survey_instructions=instructions)
 
 
+@app.route('/start', methods=['POST'])
+def session_start():
+    session['responses'] = []
+    responses = []
+
+    return redirect('/question/0')
+
+
 @app.route('/question/<int:qid>')
 def survey_question(qid):
-    if responses is None:
+    if session['responses'] is None:
         return redirect('/')
 
-    if qid != len(responses):
+    if qid != len(session['responses']):
         flash("You're trying to answer the wrong question.")
-        return redirect(f'/question/{len(responses)}')
+        return redirect(f'/question/{len(session["responses"])}')
 
-    if len(responses) == len(satisfaction_survey.questions):
+    if len(session['responses']) == len(satisfaction_survey.questions):
         return redirect('/thank_you')
 
     question = satisfaction_survey.questions[qid]
@@ -42,12 +50,13 @@ def survey_question(qid):
 def add_answer():
     test = request.form['choice']
     responses.append(test)
+    session['responses'] = responses
 
-    if len(responses) == len(satisfaction_survey.questions):
+    if len(session['responses']) == len(satisfaction_survey.questions):
         return redirect('/thank_you')
 
     else:
-        return redirect(f'/question/{len(responses)}')
+        return redirect(f'/question/{len(session["responses"])}')
 
 
 @app.route('/thank_you')
